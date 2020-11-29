@@ -1,11 +1,12 @@
 const Usuario = require('../models/Usuario');
+const bcrypt = require('bcrypt');
 
 exports.autenticarUsuario = async (req, res, next) => {
 
     //Revisar si hay errores
 
     //Buscar el usuario para verificar si esta registrado
-    const { email } = req.body;
+    const { email, password } = req.body;
     const usuario = await Usuario.findOne({ email });
 
     if(!usuario) {
@@ -14,6 +15,12 @@ exports.autenticarUsuario = async (req, res, next) => {
     }
 
     //Verificar el password y autenticar el usuario
+    if(bcrypt.compareSync(password, usuario.password)) {
+        console.log('ok');
+    } else {
+        res.status(401).json({ msg: 'Password incorrecto' });
+        return next();
+    }
 
 }
 
