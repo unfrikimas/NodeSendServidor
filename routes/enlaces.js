@@ -6,6 +6,10 @@ const auth = require('../middleware/auth');
 
 router.post('/',
 
+    [
+        check('nombre', 'Agrega un archivo').not().isEmpty(),
+        check('nombre_original', 'Agrega un archivo').not().isEmpty()
+    ],
     auth,
     enlacesController.nuevoEnlace
 
