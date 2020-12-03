@@ -12,11 +12,11 @@ exports.nuevoEnlace = async (req, res, next) => {
     }       
 
     //Crear el objeto de la DB
-    const { nombre_original, password } = req.body;
+    const { nombre_original, nombre } = req.body;
 
     const enlace = new Enlace();
     enlace.url = shortid.generate();
-    enlace.nombre = shortid.generate();
+    enlace.nombre = nombre;
     enlace.nombre_original = nombre_original;
 
     //revisa si el usuario esta autenticado
@@ -49,6 +49,17 @@ exports.nuevoEnlace = async (req, res, next) => {
 
 }
 
+//Obtiene un listado de todos los enlaces
+exports.todosEnlaces = async (req, res) => {
+    try {
+        const enlaces = await Enlace.find({}).select('url -_id');
+        res.json({enlaces});
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//Obtiene el enlace
 exports.obtenerEnlace = async (req, res, next) => {
     // console.log(req.params.url);
     const { url } = req.params;
