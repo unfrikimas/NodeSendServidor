@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # variables
-variables.env
+/.env
 
 # dependencies
 /node_modules
@@ -13,9 +13,6 @@ variables.env
 
 # production
 /build
-
-# media
-/uploads
 
 # misc
 .DS_Store
