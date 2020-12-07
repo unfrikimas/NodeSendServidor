@@ -59,8 +59,54 @@ exports.todosEnlaces = async (req, res) => {
     }
 }
 
+//retorna si el enlace tiene un password
+exports.tienePassword = async (req, res, next) => {
+
+    // console.log(req.params.url);
+    const { url } = req.params;
+
+ 
+        //verificar si existe el enlace
+        const enlace = await Enlace.findOne({ url });
+
+        // console.log(enlace)
+
+        //si no existe
+        if(!enlace) {
+            res.status(404).json({ msg: 'El enlace ya no existe' });
+            return next();
+        }
+
+        if(enlace.password) {
+            return res.json({ password: true, enlace: enlace.url, archivo: enlace.nombre })
+        }
+
+        next();        
+
+    
+}
+
+//Verifica si el password es correcto
+exports.verificarPassword = async (req, res, next) => {
+
+    const { url } = req.params;
+    const { password } = req.body;
+
+    //consultar por el enlace
+    const enlace = await Enlace.findOne({ url: url });
+
+    //verificar el password
+    if(bcrypt.compareSync( password, enlace.password )) {
+        //permitir al usuario descargar el archivo
+        next();
+    } else {
+        return res.status(401).json({ msg: 'Password incorrecto' })
+    }
+}
+
 //Obtiene el enlace
 exports.obtenerEnlace = async (req, res, next) => {
+
     // console.log(req.params.url);
     const { url } = req.params;
 
@@ -69,26 +115,13 @@ exports.obtenerEnlace = async (req, res, next) => {
 
     //si no existe
     if(!enlace) {
-        res.status(404).json({ msg: 'Enlace no existe' });
+        res.status(404).json({ msg: 'El enlace ya no existe' });
         return next();
     }
 
-    //si existe
-    res.json({ archivo: enlace.nombre });
+    //si el enlace existe
+    res.json({ archivo: enlace.nombre, password: false, url: enlace.url });
 
-    return;
-
-    //si las descargas son default(1), borrar la entrada y el archivo
-    const { descargas, nombre } = enlace
-
-    if(descargas === 1) {
-        await Enlace.findOneAndRemove({ url }); //eliminar entrada de la DB
-        req.archivo = nombre; //pasa la variable al siguiente controlador
-        next();
-    } else {
-        //si las descargas son > 1, restar 1
-        enlace.descargas--;
-        await enlace.save();
-    }
+    next();
 
 };
